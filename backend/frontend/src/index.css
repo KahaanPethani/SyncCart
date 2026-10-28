@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-green: #10B981;
+  --primary-green-hover: #059669;
+  --bg-dark-slate: #0F172A;
+  --text-white: #FFFFFF;
+  --text-muted: #94A3B8;
+  --radius: 20px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-dark-slate);
+}
+
+/* Full Screen Layout with Supermarket Image & Dark Overlay */
+.grocery-theme-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.85) 100%),
+              url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat fixed;
+  color: var(--text-white);
+}
+
+/* Left Side: Brand & Typewriter Slogan */
+.hero-text-section {
+  display: none;
+  flex: 1.2;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem;
+  z-index: 1;
+}
+
+@media (min-width: 900px) {
+  .hero-text-section {
+    display: flex;
+  }
+}
+
+.brand-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.typewriter-container {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text-white);
+  min-height: 5.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.cursor {
+  display: inline-block;
+  width: 3px;
+  background-color: var(--primary-green);
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.hero-subtext {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 440px;
+}
+
+/* Right Side: Glassmorphism Login/Register Card */
+.glass-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.glass-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.75rem 2.5rem;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--text-white);
+}
+
+.glass-card p.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+/* Inputs & Form Controls */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-white);
+  margin-bottom: 0.5rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: var(--text-white);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+input:focus {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.75rem;
+}
+
+.btn-primary:hover {
+  background: var(--primary-green-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.auth-link a {
+  color: var(--text-white);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #FCA5A5;
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
