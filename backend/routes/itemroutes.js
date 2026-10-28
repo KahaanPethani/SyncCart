@@ -37,11 +37,17 @@ router.post('/', protect, requireHousehold, async (req, res) => {
   }
 });
 
-// 2. GET /api/items - Fetch all items for user's household
-// PATCH /api/items/:id/status - Update status or partially buy items
-// PATCH /api/items/:id/status - Update status or partially buy items
-// PATCH /api/items/:id/status - Update status or partially buy items
-// PATCH /api/items/:id/status - Update status or partially buy items
+// 2. GET /api/items - Fetch all items for user's household ordered by creation date
+router.get('/', protect, requireHousehold, async (req, res) => {
+  try {
+    const items = await Item.find({ householdId: req.user.householdId }).sort({ createdAt: -1 });
+    res.status(200).json(items);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 3. PATCH /api/items/:id/status - Update status or partially buy items
 router.patch('/:id/status', protect, async (req, res) => {
   try {
     const { status, boughtQuantity } = req.body;
@@ -51,9 +57,9 @@ router.patch('/:id/status', protect, async (req, res) => {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    const householdId = item.household 
-      ? item.household.toString() 
-      : (req.user.household || req.user.householdId)?.toString();
+    const householdId = item.householdId 
+      ? item.householdId.toString() 
+      : req.user.householdId?.toString();
 
     if (!householdId) {
       return res.status(400).json({ error: 'Household context missing' });
@@ -66,7 +72,7 @@ router.patch('/:id/status', protect, async (req, res) => {
     if (status === 'pantry' && !isNaN(parsedBoughtQty) && parsedBoughtQty > 0 && parsedBoughtQty < item.quantity) {
       // 1. Deduct quantity from original cart item
       item.quantity -= parsedBoughtQty;
-      if (!item.household) item.household = householdId;
+      if (!item.householdId) item.householdId = householdId;
       await item.save();
 
       // 2. Create new item in pantry with bought quantity
@@ -75,11 +81,11 @@ router.patch('/:id/status', protect, async (req, res) => {
         quantity: parsedBoughtQty,
         category: item.category,
         status: 'pantry',
-        household: householdId,
+        householdId: householdId,
         addedBy: req.user._id,
       });
 
-      // 3. Emit live socket updates
+      // 3. Emit live socket updates to household room
       if (io) {
         io.to(householdId).emit('ITEM_UPDATED', item);
         io.to(householdId).emit('ITEM_ADDED', pantryItem);
@@ -94,7 +100,7 @@ router.patch('/:id/status', protect, async (req, res) => {
 
     // SCENARIO 2: Full buy or Moving back to cart
     item.status = status;
-    if (!item.household) item.household = householdId;
+    if (!item.householdId) item.householdId = householdId;
     await item.save();
 
     if (io) {

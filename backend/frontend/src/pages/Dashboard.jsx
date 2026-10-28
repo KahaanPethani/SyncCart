@@ -15,7 +15,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.householdId) {
+    const currentHouseholdId = user?.householdId || household?._id;
+    if (!currentHouseholdId) {
       setLoading(false);
       return;
     }
@@ -34,7 +35,7 @@ export default function Dashboard() {
       }
     };
     fetchData();
-  }, [user]);
+  }, [user?.householdId, household?._id]);
 
   useEffect(() => {
     const householdId = user?.householdId || household?._id;

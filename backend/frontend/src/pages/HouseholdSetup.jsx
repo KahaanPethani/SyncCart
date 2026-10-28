@@ -8,7 +8,7 @@ export default function HouseholdSetup({ onHouseholdJoined }) {
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -20,7 +20,11 @@ export default function HouseholdSetup({ onHouseholdJoined }) {
       const updatedHousehold = response.data;
 
       const updatedUser = { ...user, householdId: updatedHousehold._id, role: 'admin' };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (updateUser) {
+        updateUser(updatedUser);
+      } else {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
       
       onHouseholdJoined(updatedHousehold);
     } catch (err) {
@@ -40,7 +44,11 @@ export default function HouseholdSetup({ onHouseholdJoined }) {
       const updatedHousehold = response.data;
 
       const updatedUser = { ...user, householdId: updatedHousehold._id, role: 'member' };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (updateUser) {
+        updateUser(updatedUser);
+      } else {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
 
       onHouseholdJoined(updatedHousehold);
     } catch (err) {
