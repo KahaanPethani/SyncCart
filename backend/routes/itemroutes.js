@@ -40,7 +40,10 @@ router.post('/', protect, requireHousehold, async (req, res) => {
 // 2. GET /api/items - Fetch all items for user's household ordered by creation date
 router.get('/', protect, requireHousehold, async (req, res) => {
   try {
-    const items = await Item.find({ householdId: req.user.householdId }).sort({ createdAt: -1 });
+    const items = await Item.find({ householdId: req.user.householdId })
+      .populate('addedBy', 'name email')
+      .populate('boughtBy', 'name email')
+      .sort({ createdAt: -1 });
     res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -50,15 +53,15 @@ router.get('/', protect, requireHousehold, async (req, res) => {
 // 3. PATCH /api/items/:id/status - Update status or partially buy items
 router.patch('/:id/status', protect, async (req, res) => {
   try {
-    const { status, boughtQuantity } = req.body;
+    const { status, boughtQuantity, price } = req.body;
     const item = await Item.findById(req.params.id);
-    
+
     if (!item) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    const householdId = item.householdId 
-      ? item.householdId.toString() 
+    const householdId = item.householdId
+      ? item.householdId.toString()
       : req.user.householdId?.toString();
 
     if (!householdId) {
@@ -67,6 +70,7 @@ router.patch('/:id/status', protect, async (req, res) => {
 
     const io = req.app.get('socketio');
     const parsedBoughtQty = parseInt(boughtQuantity, 10);
+    const parsedPrice = price !== undefined && price !== '' ? Math.max(0, parseFloat(price) || 0) : 0;
 
     // SCENARIO 1: Partial buy (Split quantity)
     if (status === 'pantry' && !isNaN(parsedBoughtQty) && parsedBoughtQty > 0 && parsedBoughtQty < item.quantity) {
@@ -75,14 +79,16 @@ router.patch('/:id/status', protect, async (req, res) => {
       if (!item.householdId) item.householdId = householdId;
       await item.save();
 
-      // 2. Create new item in pantry with bought quantity
+      // 2. Create new item in pantry with bought quantity and assigned price
       const pantryItem = await Item.create({
         name: item.name,
         quantity: parsedBoughtQty,
+        price: parsedPrice,
         category: item.category,
         status: 'pantry',
         householdId: householdId,
         addedBy: req.user._id,
+        boughtBy: req.user._id,
       });
 
       // 3. Emit live socket updates to household room
@@ -100,6 +106,12 @@ router.patch('/:id/status', protect, async (req, res) => {
 
     // SCENARIO 2: Full buy or Moving back to cart
     item.status = status;
+    if (status === 'pantry') {
+      if (price !== undefined && price !== '') {
+        item.price = parsedPrice;
+      }
+      item.boughtBy = req.user._id;
+    }
     if (!item.householdId) item.householdId = householdId;
     await item.save();
 

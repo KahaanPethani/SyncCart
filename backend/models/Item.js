@@ -12,6 +12,10 @@ const itemSchema = new mongoose.Schema(
       required: true,
       default: 1,
     },
+    price: {
+      type: Number,
+      default: 0,
+    },
     category: {
       type: String,
       default: 'Produce',
@@ -28,6 +32,10 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
     addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    boughtBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
